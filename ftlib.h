@@ -29,6 +29,7 @@ class FTLib {
     }
 
     ///Loads a font. Returns NULL on error
+    //TODO: rename size to resolution
     Font* loadFont (const char* filename, int size);
 
 

@@ -128,6 +128,7 @@ Font* FTLib::loadFont (const char* filename, int size) {
   for (FT_ULong charcode=FT_Get_First_Char(fontFace, &gindex); 
        gindex != 0; 
        charcode=FT_Get_Next_Char(fontFace, charcode, &gindex)) {
+    //LOGI("Load glyph for charcode %li", charcode);
     //Load the corresponding glyph, rendering it on the fly
     if (FT_Load_Glyph(fontFace, gindex, FT_LOAD_DEFAULT)) {
       LOGE("Error loading glyph with index %i and charcode %i. Skipping.", gindex, charcode);
@@ -137,12 +138,12 @@ Font* FTLib::loadFont (const char* filename, int size) {
     FT_Render_Glyph(glyph, FT_RENDER_MODE_NORMAL);
 
     Font::Glyph glyphInfo;
-    glyphInfo.leftMargin = glyph->bitmap_left;
-    glyphInfo.topMargin = glyph->bitmap_top;
-    glyphInfo.atlasX = texAtlasX;
-    glyphInfo.atlasY = texAtlasY;
+    glyphInfo.leftMargin = glyph->bitmap_left/(float)size;
+    glyphInfo.topMargin = -(glyph->bitmap_top/(float)size);
+    glyphInfo.atlasX = texAtlasX*size/(float)realTexSize;
+    glyphInfo.atlasY = texAtlasY*size/(float)realTexSize;
     //advance is stored in fractional pixel format (=1/64 pixels)
-    glyphInfo.advance = glyph->advance.x >> 6;
+    glyphInfo.advance = (glyph->advance.x)/(float)(64.0f*size);
 
     glyphs.insert(charcode, glyphInfo);
 
@@ -161,6 +162,6 @@ Font* FTLib::loadFont (const char* filename, int size) {
 
   FT_Done_Face(fontFace);
 
-  return new Font (atlasTex, glyphs);
+  return new Font (atlasTex, glyphs, size/(float)realTexSize);
 }
 

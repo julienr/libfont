@@ -34,6 +34,9 @@ static void initVideo () {
   glDisable(GL_DEPTH_TEST);
   glColor4f(1,1,1,1);
   glEnable(GL_TEXTURE_2D);
+
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 static void releaseVideo () {
@@ -47,7 +50,12 @@ static void render (Font* font) {
 
   //glDisable(GL_TEXTURE_2D);
 
-  font->drawSquare(SCREEN_WIDTH);
+  font->drawSquare(SCREEN_WIDTH/2);
+
+  glTranslatef(0,SCREEN_WIDTH/2+10, 0);
+
+//  font->draw("abcdefghijklmnop", 50);
+  font->draw("hello everybody in the world !", 60);
   glFlush();
   SDL_GL_SwapBuffers();
 }
