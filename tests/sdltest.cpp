@@ -52,7 +52,7 @@ static void render (Font* font) {
 
   font->drawSquare(SCREEN_WIDTH/2);
 
-  glTranslatef(0,SCREEN_WIDTH/2+10, 0);
+  glTranslatef(0,SCREEN_WIDTH/2+70, 0);
 
 //  font->draw("abcdefghijklmnop", 50);
   font->draw("hello everybody in the world !", 60);
@@ -83,7 +83,7 @@ int main (int argc, char** argv) {
   }
 
   initVideo();
-  Font* font = FTLib::getInstance()->loadFont(argv[1], 15);
+  Font* font = FTLib::getInstance()->loadFont(argv[1], 15, 2);
 
   while (!done) {
     handleEvents();

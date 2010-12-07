@@ -8,8 +8,11 @@ static int nextPowerOf2 (int a)
 }
 
 //Copy the bitmap of the given glyph to the texture atlas at the location (atlasX, atlasY). If drawBorder is true, a white border is drawn around the glyph square
-static void copyGlyphToTex (FT_GlyphSlot glyph, GLubyte* texture, int atlasX, int atlasY, int texSize, int squareSize, bool drawBorder) {
+static void copyGlyphToTex (FT_GlyphSlot glyph, GLubyte* texture, int atlasX, int atlasY, int texSize, int resolution, int marginSize, bool drawBorder) {
+  const int squareSize = resolution + marginSize*2;
   const int baseOffset = atlasX*squareSize + atlasY*squareSize*texSize;
+  //LOGI("base Offset for atlasX=%i and atlasY=%i = %i", atlasX, atlasY, baseOffset);
+
 
   if (drawBorder) { //Draw a white border around the glyph
     for (int w=0; w<squareSize; w++)
@@ -17,7 +20,7 @@ static void copyGlyphToTex (FT_GlyphSlot glyph, GLubyte* texture, int atlasX, in
 
     for (int h=1; h<squareSize; h++)
       for (int w=0; w<squareSize; w++)
-        texture[baseOffset+(w+h*texSize)] = (w==0||w==squareSize-1)?255:(h==squareSize-1)?255:0;
+        texture[baseOffset+w+h*texSize] = (w==0||w==squareSize-1)?255:(h==squareSize-1)?255:0;
   }
 
   //The bitmap might be smaller than our square of [squareSize*squareSize]. So we first
@@ -26,23 +29,28 @@ static void copyGlyphToTex (FT_GlyphSlot glyph, GLubyte* texture, int atlasX, in
   const int gw = glyph->bitmap.width;
   for (int h=0; h<gr; h++) {
     for (int w=0; w<gw; w++) {
-      //We are using a two channel opengl texture (one for luminance one for alpha), 
-      //but we assign the same value to both
-      texture[baseOffset+(w+h*texSize)] = glyph->bitmap.buffer[w+h*gw];
+      //Need to add the top margin (marginSize*texSize offset) and the left margin (marginSize)
+      texture[baseOffset+marginSize+(w+(marginSize+h)*texSize)] = glyph->bitmap.buffer[w+h*gw];
     }
   }
 
+  //LOGI("squareSize : %i, gr : %i, gw : %i", squareSize, gr, gw);
+
   if (!drawBorder) { //with borders, padding has already been done 
     for (int h=0; h<squareSize; h++) {
-      if (h < gr) {
-        //right padding
-        for (int w=gw; w<squareSize; w++)
-          texture[baseOffset+(w+h*texSize)] = 0;
+      if (h < marginSize || h >= marginSize+gr) {
+         //bottom padding => whole rows
+        for (int w=0; w<squareSize; w++) {
+          texture[baseOffset+w+h*texSize] = 0;
+        }
       } else {
-        //bottom padding
-        for (int w=0; w<squareSize; w++)
-          texture[baseOffset+(w+h*texSize)] = 0;
-      }
+        //left padding
+        for (int w=0; w<marginSize; w++)
+          texture[baseOffset+w+h*texSize] = 0;
+        //right padding
+        for (int w=gw+marginSize; w<squareSize; w++)
+          texture[baseOffset+w+h*texSize] = 0;
+      } 
     }
   }
 }
@@ -61,7 +69,7 @@ FTLib::~FTLib () {
   FT_Done_FreeType(library);
 }
 
-Font* FTLib::loadFont (const char* filename, int size) {
+Font* FTLib::loadFont (const char* filename, int resolution, int glyphMargin) {
   //TODO: To avoid loading ALL glyphs from a particular typeFace, we might
   //let the user provides one or more "character ranges" that we should load
 
@@ -79,9 +87,9 @@ Font* FTLib::loadFont (const char* filename, int size) {
     LOGE("Error loading font face %s", filename);
     return NULL;
   }  
-  
-  //Each character will be rendered in a square of size*size pixels
-  FT_Set_Pixel_Sizes(fontFace, size, size);
+
+  //Each character will be rendered in a square of resolution*resolution pixels
+  FT_Set_Pixel_Sizes(fontFace, resolution, resolution);
   /*
    * We build a single texture (the "atlas") to store all our glyphs. Each glyph
    * has an atlasCoord, which represent its position in the atlas (NOT in pixels, 
@@ -100,10 +108,12 @@ Font* FTLib::loadFont (const char* filename, int size) {
    */
   const int numGlyphs = fontFace->num_glyphs;
 
+  //The actual size of a side of the square that will contain our glyph
+  const int squareSize = resolution + glyphMargin*2;
+
   //Calculate the size of the texture we'll need to store these glyphs
-  const int numGlyphsPerRow = (int)sqrt(numGlyphs); //=numRows (texture is a square)
-  //We add 1 to take into account the last row of glyph's heights
-  const int texSize = (numGlyphsPerRow+1)*size;
+  const int numGlyphsPerRow = (int)ceilf(sqrt(numGlyphs)); //=numRows (texture is a square)
+  const int texSize = (numGlyphsPerRow)*squareSize;
   //OpenGL ES requires power of 2 textures 
   const int realTexSize = nextPowerOf2(texSize);
 
@@ -137,18 +147,19 @@ Font* FTLib::loadFont (const char* filename, int size) {
     FT_GlyphSlot glyph = fontFace->glyph;
     FT_Render_Glyph(glyph, FT_RENDER_MODE_NORMAL);
 
+    //Calculate glyph informations 
     Font::Glyph glyphInfo;
-    glyphInfo.leftMargin = glyph->bitmap_left/(float)size;
-    glyphInfo.topMargin = -(glyph->bitmap_top/(float)size);
-    glyphInfo.atlasX = texAtlasX*size/(float)realTexSize;
-    glyphInfo.atlasY = texAtlasY*size/(float)realTexSize;
+    glyphInfo.leftMargin = glyph->bitmap_left/(float)squareSize;
+    glyphInfo.topMargin = -(glyph->bitmap_top/(float)squareSize);
+    glyphInfo.atlasX = texAtlasX*squareSize/(float)realTexSize;
+    glyphInfo.atlasY = texAtlasY*squareSize/(float)realTexSize;
     //advance is stored in fractional pixel format (=1/64 pixels)
-    glyphInfo.advance = (glyph->advance.x)/(float)(64.0f*size);
+    glyphInfo.advance = (glyph->advance.x)/(float)(64.0f*resolution);
 
     glyphs.insert(charcode, glyphInfo);
 
     //Copy the bitmap to the atlas
-    copyGlyphToTex(glyph, textureData, texAtlasX, texAtlasY, realTexSize, size, false);
+    copyGlyphToTex(glyph, textureData, texAtlasX, texAtlasY, realTexSize, resolution, glyphMargin, false);
  
     texAtlasX++;
     if (texAtlasX >= numGlyphsPerRow) {
@@ -162,6 +173,6 @@ Font* FTLib::loadFont (const char* filename, int size) {
 
   FT_Done_Face(fontFace);
 
-  return new Font (atlasTex, glyphs, size/(float)realTexSize);
+  return new Font (atlasTex, glyphs, resolution/(float)realTexSize);
 }
 

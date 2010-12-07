@@ -23,7 +23,7 @@ void Font::drawSquare (float size) {
 }
 
 void Font::drawGlyph (const Glyph& gi) {
-  LOGI("Drawing glyph at coords (%f,%f) with glyphSize %f", gi.atlasX, gi.atlasY, glyphSize);
+  //LOGI("Drawing glyph at coords (%f,%f) with glyphSize %f", gi.atlasX, gi.atlasY, glyphSize);
 
   glPushMatrix();
   glTranslatef(gi.leftMargin, gi.topMargin, 0.0f);
