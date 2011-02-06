@@ -169,7 +169,7 @@ Font* FTLib::loadFont (const char* filename, int resolution, int glyphMargin) {
     glyphInfo.atlasX = texAtlasX*squareSize/(float)realTexSize;
     glyphInfo.atlasY = texAtlasY*squareSize/(float)realTexSize;
     //advance is stored in fractional pixel format (=1/64 pixels)
-    glyphInfo.advance = (glyph->advance.x)/(float)(64.0f*resolution);
+    glyphInfo.advance = (glyph->advance.x)/(float)(64.0f*squareSize);
 
     glyphs.insert(charcode, glyphInfo);
 

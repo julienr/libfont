@@ -91,7 +91,7 @@ int main (int argc, char** argv) {
   }
 
   initVideo();
-  Font* font = FTLib::getInstance()->loadFont(argv[1], 15, 2);
+  Font* font = FTLib::getInstance()->loadFont(argv[1], 15, 4);
 
   while (!done) {
     handleEvents();
