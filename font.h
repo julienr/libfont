@@ -28,6 +28,7 @@ class Font {
     void drawSquare (float size);
 
   private:
+    //glyphSize is the size of a glyph quad in texture coordinates [0-1]
     Font (const GLuint atlasTex, const map<unsigned long, Glyph>& glyphMap, float glyphSize);
 
     void drawGlyph (const Glyph& gi);

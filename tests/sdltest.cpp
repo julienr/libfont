@@ -27,7 +27,8 @@ static void initVideo () {
   //OpenGL init
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  glClearColor(0.7f,0.7f,0.7f,0.0f);
+//  glClearColor(0.7f,0.7f,0.7f,0.0f);
+  glClearColor(0,0,0,0);
   glOrtho(0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, 1);
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
@@ -54,8 +55,12 @@ static void render (Font* font) {
 
   glTranslatef(0,SCREEN_WIDTH/2+70, 0);
 
-//  font->draw("abcdefghijklmnop", 50);
   font->draw("hello everybody in the world !", 60);
+
+  glTranslatef(0,70, 0);
+
+  font->draw("abcdefghijklmnopqrstuvwxyz", 50);
+
   glFlush();
   SDL_GL_SwapBuffers();
 }
@@ -69,6 +74,9 @@ static void handleEvents () {
       case SDL_KEYDOWN:
         if (event.key.keysym.sym == SDLK_ESCAPE)
           done = true;
+        break;
+      case SDL_QUIT:
+        done = true;
         break;
       default:
         break;

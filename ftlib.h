@@ -28,8 +28,13 @@ class FTLib {
       return error;
     }
 
-    ///Loads a font. Returns NULL on error
-    //TODO: rename size to resolution
+    /**
+     * @param filename the filename from which to load the font
+     * @param resolution the size (in pixel) of a glyph quad in the opengl texture 
+     * @param glyphMargin additionnal margin added to the glyph size to avoid artifacts due
+     *                    to aliasing
+     * @return the newly loaded font, NULL on error
+     */
     Font* loadFont (const char* filename, int resolution, int glyphMargin=2);
 
 
