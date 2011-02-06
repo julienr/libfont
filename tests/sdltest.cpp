@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <SDL/SDL.h>
 #include <SDL/SDL_opengl.h>
+#include <SDL/SDL_ttf.h>
 
 #define SCREEN_WIDTH 800 
 #define SCREEN_HEIGHT 800
@@ -44,7 +45,32 @@ static void releaseVideo () {
   SDL_FreeSurface(screen);
 }
 
-static void render (Font* font) {
+static void renderTTF (TTF_Font* font, int x, int y, const char* str) {
+	SDL_Color color = {255, 255, 255};
+	SDL_Surface *message = TTF_RenderText_Blended(font, str, color);
+	unsigned texture = 0;
+ 
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+ 
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+ 
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, message->w, message->h, 0, GL_BGRA, GL_UNSIGNED_BYTE, message->pixels);
+ 
+	glBegin(GL_QUADS);
+		glTexCoord2d(0, 0); glVertex3d(x, y, 0);
+		glTexCoord2d(1, 0); glVertex3d(x+message->w, y, 0);
+		glTexCoord2d(1, 1); glVertex3d(x+message->w, y+message->h, 0);
+		glTexCoord2d(0, 1); glVertex3d(x, y+message->h, 0);
+	glEnd();
+ 
+	/*Clean up.*/
+	glDeleteTextures(1, &texture);
+	SDL_FreeSurface(message);
+}
+
+static void render (TTF_Font* ttfFont, Font* font, const char* msg) {
   glClear (GL_COLOR_BUFFER_BIT);
 
   glLoadIdentity();
@@ -55,15 +81,17 @@ static void render (Font* font) {
 
   glTranslatef(0,SCREEN_WIDTH/2+70, 0);
 
-  font->draw("hello everybody in the world !", 60);
+  font->draw(msg, 60);
 
-  glTranslatef(0,70, 0);
+  glTranslatef(0, 10, 0);
 
-  font->draw("abcdefghijklmnopqrstuvwxyz", 50);
+  renderTTF(ttfFont, 0, 0, msg);
 
   glFlush();
   SDL_GL_SwapBuffers();
 }
+
+
 
 bool done = false;
 
@@ -90,12 +118,29 @@ int main (int argc, char** argv) {
     return -1;
   }
 
+  const char* message = "hello everybody in the world !";
+
   initVideo();
-  Font* font = FTLib::getInstance()->loadFont(argv[1], 15, 4);
+  Font* font = FTLib::getInstance()->loadFont(argv[1], 50, 4);
+
+  if(TTF_Init() == -1) {
+    printf("Error initializing SDL_TTF\n");
+    return -1;
+  }
+
+  TTF_Font* ttfFont = TTF_OpenFont(argv[1], 40);
+  if (!ttfFont) {
+    printf("Error loading SDL_TTF font : %s\n", SDL_GetError());
+  }
+
+  int minx, maxx, miny, maxy, advance;
+  TTF_GlyphMetrics(ttfFont,'g', &minx, &maxx, &miny, &maxy, &advance);
+  printf("TTF_GlyphMetrics('g'):\n\tminx=%d\n\tmaxx=%d\n\tminy=%d\n\tmaxy=%d\n\tadvance=%d\n",
+      minx, maxx, miny, maxy, advance);
 
   while (!done) {
     handleEvents();
-    render(font);
+    render(ttfFont, font, message);
   }
   releaseVideo();
   SDL_Quit();
