@@ -29,13 +29,19 @@ class FTLib {
     }
 
     /**
+     * Loads a font. Glyph margin is autocalculated (10% of resolution). 
+     */
+    Font* loadFont(const char* filename, int resolution);
+
+    /**
+     * Loads a font with a specified glyphMargin. 
      * @param filename the filename from which to load the font
      * @param resolution the size (in pixel) of a glyph quad in the opengl texture 
      * @param glyphMargin additionnal margin added to the glyph size to avoid artifacts due
      *                    to aliasing
      * @return the newly loaded font, NULL on error
      */
-    Font* loadFont (const char* filename, int resolution, int glyphMargin=2);
+    Font* loadFont (const char* filename, int resolution, int glyphMargin);
 
 
   private:

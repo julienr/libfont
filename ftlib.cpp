@@ -83,6 +83,11 @@ FTLib::~FTLib () {
   FT_Done_FreeType(library);
 }
 
+Font* FTLib::loadFont(const char* filename, int resolution) {
+  const int margin = (int)ceil(resolution*0.1f);
+  return loadFont(filename, resolution, margin);
+}
+
 Font* FTLib::loadFont (const char* filename, int resolution, int glyphMargin) {
   //TODO: To avoid loading ALL glyphs from a particular typeFace, we might
   //let the user provides one or more "character ranges" that we should load
@@ -141,7 +146,7 @@ Font* FTLib::loadFont (const char* filename, int resolution, int glyphMargin) {
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
 
-  LOGI("num glyphs : %i => texSize = %i (nextpowerof2 = %i), numGlyphsPerRow = %i", numGlyphs, texSize, realTexSize, numGlyphsPerRow);
+  LOGI("num glyphs : %i => texSize = %i (nextpowerof2 = %i), numGlyphsPerRow = %i, margin = %i", numGlyphs, texSize, realTexSize, numGlyphsPerRow, glyphMargin);
 
   map<unsigned long, Font::Glyph> glyphs;
 
@@ -167,7 +172,8 @@ Font* FTLib::loadFont (const char* filename, int resolution, int glyphMargin) {
     glyphInfo.leftMargin = glyph->bitmap_left/(float)squareSize;
     glyphInfo.topMargin = -(glyph->bitmap_top/(float)squareSize);
     glyphInfo.atlasX = texAtlasX*squareSize/(float)realTexSize;
-    glyphInfo.atlasY = texAtlasY*squareSize/(float)realTexSize;
+    //add 1 to avoid border aliasing issues 
+    glyphInfo.atlasY = (texAtlasY*squareSize+1)/(float)realTexSize;
     //advance is stored in fractional pixel format (=1/64 pixels)
     glyphInfo.advance = (glyph->advance.x)/(float)(64.0f*squareSize);
 

@@ -70,18 +70,21 @@ static void renderTTF (TTF_Font* font, int x, int y, const char* str) {
 	SDL_FreeSurface(message);
 }
 
-static void render (TTF_Font* ttfFont, Font* font, const char* msg) {
+static void render (TTF_Font* ttfFont, Font* font15, Font* font50, const char* msg) {
   glClear (GL_COLOR_BUFFER_BIT);
 
   glLoadIdentity();
 
   //glDisable(GL_TEXTURE_2D);
 
-  font->drawSquare(SCREEN_WIDTH/2);
+  font50->drawSquare(SCREEN_WIDTH/2);
 
   glTranslatef(0,SCREEN_WIDTH/2+70, 0);
 
-  font->draw(msg, 60);
+  font50->draw(msg, 60);
+
+  glTranslatef(0,60,0);
+  font15->draw(msg, 60);
 
   glTranslatef(0, 10, 0);
 
@@ -121,7 +124,8 @@ int main (int argc, char** argv) {
   const char* message = "hello everybody in the world !";
 
   initVideo();
-  Font* font = FTLib::getInstance()->loadFont(argv[1], 50, 4);
+  Font* font15 = FTLib::getInstance()->loadFont(argv[1], 15);
+  Font* font50 = FTLib::getInstance()->loadFont(argv[1], 50);
 
   if(TTF_Init() == -1) {
     printf("Error initializing SDL_TTF\n");
@@ -140,7 +144,7 @@ int main (int argc, char** argv) {
 
   while (!done) {
     handleEvents();
-    render(ttfFont, font, message);
+    render(ttfFont, font15, font50, message);
   }
   releaseVideo();
   SDL_Quit();
