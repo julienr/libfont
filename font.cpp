@@ -42,10 +42,18 @@ void Font::draw (const char* str, float size) {
 
   glPushMatrix();
   glScalef(size, size, 1.0f);
+
+  float advanceAccum = 0;
   for (const char* c = str; *c!='\0'; c++) {
-    const Glyph& gi = glyphMap.get((unsigned long)*c);
-    drawGlyph(gi);
-    glTranslatef(gi.advance, 0, 0);
+    if (*c == '\n') {
+      glTranslatef(-advanceAccum, 1, 0);
+      advanceAccum = 0;
+    } else {
+      const Glyph& gi = glyphMap.get((unsigned long)*c);
+      drawGlyph(gi);
+      glTranslatef(gi.advance, 0, 0);
+      advanceAccum += gi.advance;
+    }
   }
   glPopMatrix();
 }

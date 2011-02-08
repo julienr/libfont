@@ -19,17 +19,13 @@ static void setPixel (GLubyte* texture, int offset, int size, int x, int y, GLub
 static void copyGlyphToTex (FT_GlyphSlot glyph, GLubyte* texture, int atlasX, int atlasY, int texSize, int resolution, int marginSize, bool drawBorder) {
   const int squareSize = resolution + marginSize*2;
   const int baseOffset = atlasX*squareSize + atlasY*squareSize*texSize;
-  //LOGI("base Offset for atlasX=%i and atlasY=%i = %i", atlasX, atlasY, baseOffset);
-
 
   if (drawBorder) { //Draw a white border around the glyph
     for (int w=0; w<squareSize; w++)
-      //texture[baseOffset+w] = 255;
       setPixel(texture, baseOffset, texSize, w, 0, 255);
 
     for (int h=1; h<squareSize; h++)
       for (int w=0; w<squareSize; w++)
-//        texture[baseOffset+w+h*texSize] = (w==0||w==squareSize-1)?255:(h==squareSize-1)?255:0;
         setPixel(texture,baseOffset,texSize,w,h, (w==0||w==squareSize-1)?255:(h==squareSize-1)?255:0);
   }
 
@@ -40,29 +36,23 @@ static void copyGlyphToTex (FT_GlyphSlot glyph, GLubyte* texture, int atlasX, in
   for (int h=0; h<gr; h++) {
     for (int w=0; w<gw; w++) {
       //Need to add the top margin (marginSize*texSize offset) and the left margin (marginSize)
-//      texture[baseOffset+marginSize+(w+(marginSize+h)*texSize)] = glyph->bitmap.buffer[w+h*gw];
       setPixel(texture, baseOffset+marginSize, texSize, w, marginSize+h, glyph->bitmap.buffer[w+h*gw]);
     }
   }
-
-  //LOGI("squareSize : %i, gr : %i, gw : %i", squareSize, gr, gw);
 
   if (!drawBorder) { //with borders, padding has already been done 
     for (int h=0; h<squareSize; h++) {
       if (h < marginSize || h >= marginSize+gr) {
          //bottom padding => whole rows
         for (int w=0; w<squareSize; w++) {
-          //texture[baseOffset+w+h*texSize] = 0;
           setPixel(texture, baseOffset, texSize, w, h, 0);
         }
       } else {
         //left padding
         for (int w=0; w<marginSize; w++)
-          //texture[baseOffset+w+h*texSize] = 0;
           setPixel(texture, baseOffset, texSize, w, h, 0);
         //right padding
         for (int w=gw+marginSize; w<squareSize; w++)
-          //texture[baseOffset+w+h*texSize] = 0;
           setPixel(texture, baseOffset, texSize, w, h, 0);
       } 
     }

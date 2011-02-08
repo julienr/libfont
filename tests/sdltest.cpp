@@ -45,7 +45,7 @@ static void releaseVideo () {
   SDL_FreeSurface(screen);
 }
 
-static void renderTTF (TTF_Font* font, int x, int y, const char* str) {
+static void renderTTF (TTF_Font* font, const char* str, int x, int y) {
 	SDL_Color color = {255, 255, 255};
 	SDL_Surface *message = TTF_RenderText_Blended(font, str, color);
 	unsigned texture = 0;
@@ -70,30 +70,18 @@ static void renderTTF (TTF_Font* font, int x, int y, const char* str) {
 	SDL_FreeSurface(message);
 }
 
-static void render (TTF_Font* ttfFont, Font* font15, Font* font50, const char* msg) {
-  glClear (GL_COLOR_BUFFER_BIT);
-
-  glLoadIdentity();
-
-  //glDisable(GL_TEXTURE_2D);
-
-  font50->drawSquare(SCREEN_WIDTH/2);
-
-  glTranslatef(0,SCREEN_WIDTH/2+70, 0);
-
-  font50->draw(msg, 60);
-
-  glTranslatef(0,60,0);
-  font15->draw(msg, 60);
-
-  glTranslatef(0, 10, 0);
-
-  renderTTF(ttfFont, 0, 0, msg);
-
-  glFlush();
-  SDL_GL_SwapBuffers();
+static void renderTexAtlas (Font* font) {
+  font->drawSquare(SCREEN_WIDTH/2);
 }
 
+static void drawText (Font* font, const char* msg, int x, int y, int size) {
+  glPushMatrix();
+
+  glTranslatef(x, y, 0);
+  font->draw(msg, size);
+
+  glPopMatrix();
+}
 
 
 bool done = false;
@@ -137,14 +125,20 @@ int main (int argc, char** argv) {
     printf("Error loading SDL_TTF font : %s\n", SDL_GetError());
   }
 
-  int minx, maxx, miny, maxy, advance;
-  TTF_GlyphMetrics(ttfFont,'g', &minx, &maxx, &miny, &maxy, &advance);
-  printf("TTF_GlyphMetrics('g'):\n\tminx=%d\n\tmaxx=%d\n\tminy=%d\n\tmaxy=%d\n\tadvance=%d\n",
-      minx, maxx, miny, maxy, advance);
-
   while (!done) {
     handleEvents();
-    render(ttfFont, font15, font50, message);
+    
+    renderTexAtlas(font50);
+
+    drawText(font15, message, 0, SCREEN_WIDTH/2+60, 60);
+
+    drawText(font50, message, 0, SCREEN_WIDTH/2+2*60, 60);
+
+    renderTTF(ttfFont, message, 0, SCREEN_WIDTH/2+3*60);
+
+    drawText(font50, "first\nsecond line", 0, SCREEN_WIDTH/2+5*60, 60);
+    glFlush();
+    SDL_GL_SwapBuffers();
   }
   releaseVideo();
   SDL_Quit();
