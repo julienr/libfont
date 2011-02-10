@@ -31,7 +31,7 @@ class FTLib {
     /**
      * Loads a font. Glyph margin is autocalculated (10% of resolution). 
      */
-    Font* loadFont(const char* filename, int resolution);
+    Font* loadFont(const char* filename, int resolution) const;
 
     /**
      * Loads a font with a specified glyphMargin. 
@@ -41,16 +41,32 @@ class FTLib {
      *                    to aliasing
      * @return the newly loaded font, NULL on error
      */
-    Font* loadFont (const char* filename, int resolution, int glyphMargin);
+    Font* loadFont (const char* filename, int resolution, int glyphMargin) const;
+
+    /**
+     * Loads a font from an in-memory buffer containing the TTF file.
+     * @see loadFont
+     * @param name an arbitrary name to uniquely identify this font
+     * @param memBase pointer to the beginning of the font data
+     * @param memLength size of memory chunk used by font data
+     */
+    Font* loadMemoryFont (const char* memBase, size_t memLength, int resolution) const; 
+    Font* loadMemoryFont (const char* memBase, size_t memLength, int resolution, int glyphMargin) const; 
 
 
   private:
     static FTLib* instance;
 
+    /**
+     * Read the given freetype font and convert it to an OpenGL texture atlas
+     */
+    static Font* readFont (const FT_Face& fontFace, int resolution, int glyphMargin);
+
+
     FTLib ();
     ~FTLib ();
 
-    bool error; //this flag is set to true if any error occurs during loading
+    bool error; //this flag is set to true if any error occurs during freetype initialization
     FT_Library library;
 };
 

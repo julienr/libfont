@@ -73,30 +73,7 @@ FTLib::~FTLib () {
   FT_Done_FreeType(library);
 }
 
-Font* FTLib::loadFont(const char* filename, int resolution) {
-  const int margin = (int)ceil(resolution*0.1f);
-  return loadFont(filename, resolution, margin);
-}
-
-Font* FTLib::loadFont (const char* filename, int resolution, int glyphMargin) {
-  //TODO: To avoid loading ALL glyphs from a particular typeFace, we might
-  //let the user provides one or more "character ranges" that we should load
-
-  //TODO: If we have a font face with a HUGE amount of glyphs, maybe it would
-  //be better to generate multiple atlas (and a glyph would be found by using
-  //its atlas coordinates AND an atlas index)
-  
-  if (error) {
-    LOGE("loadFont : freetype library initialization failed");
-    return NULL;
-  }
-
-  FT_Face fontFace;
-  if (FT_New_Face(library, filename, 0, &fontFace)) {
-    LOGE("Error loading font face %s", filename);
-    return NULL;
-  }  
-
+Font* FTLib::readFont (const FT_Face& fontFace, int resolution, int glyphMargin) {
   //Each character will be rendered in a square of resolution*resolution pixels
   FT_Set_Pixel_Sizes(fontFace, resolution, resolution);
   /*
@@ -151,7 +128,7 @@ Font* FTLib::loadFont (const char* filename, int resolution, int glyphMargin) {
     //LOGI("Load glyph for charcode %li", charcode);
     //Load the corresponding glyph, rendering it on the fly
     if (FT_Load_Glyph(fontFace, gindex, FT_LOAD_DEFAULT)) {
-      LOGE("Error loading glyph with index %i and charcode %i. Skipping.", gindex, charcode);
+      LOGE("Error loading glyph with index %i and charcode %i. Skipping.", gindex, (int)charcode);
       continue;
     }
     FT_GlyphSlot glyph = fontFace->glyph;
@@ -185,5 +162,54 @@ Font* FTLib::loadFont (const char* filename, int resolution, int glyphMargin) {
   FT_Done_Face(fontFace);
 
   return new Font (atlasTex, glyphs, squareSize/(float)realTexSize);
+}
+
+
+Font* FTLib::loadMemoryFont (const char* memBase, size_t memLength, int resolution) const {
+  const int margin = (int)ceil(resolution*0.1f);
+  return loadMemoryFont(memBase, memLength, resolution, margin);
+}
+
+Font* FTLib::loadMemoryFont (const char* memBase, size_t memLength, int resolution, int glyphMargin) const {
+  if (error) {
+    LOGE("loadMemoryFont : freetype library initialization failed");
+    return NULL;
+  }
+
+  FT_Face fontFace;
+  if (FT_New_Memory_Face(library, (FT_Byte*)memBase, (FT_Long)memLength, 0, &fontFace)) {
+    LOGE("Error loading font face");
+    return NULL;
+  }
+
+  return readFont(fontFace, resolution, glyphMargin);
+}
+
+Font* FTLib::loadFont(const char* filename, int resolution) const {
+  const int margin = (int)ceil(resolution*0.1f);
+  return loadFont(filename, resolution, margin);
+}
+
+
+Font* FTLib::loadFont (const char* filename, int resolution, int glyphMargin) const {
+  //TODO: To avoid loading ALL glyphs from a particular typeFace, we might
+  //let the user provides one or more "character ranges" that we should load
+
+  //TODO: If we have a font face with a HUGE amount of glyphs, maybe it would
+  //be better to generate multiple atlas (and a glyph would be found by using
+  //its atlas coordinates AND an atlas index)
+  
+  if (error) {
+    LOGE("loadFont : freetype library initialization failed");
+    return NULL;
+  }
+
+  FT_Face fontFace;
+  if (FT_New_Face(library, filename, 0, &fontFace)) {
+    LOGE("Error loading font face %s", filename);
+    return NULL;
+  }  
+
+  return readFont(fontFace, resolution, glyphMargin);
 }
 

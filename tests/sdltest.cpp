@@ -103,6 +103,31 @@ static void handleEvents () {
   }
 }
 
+size_t fileSize (FILE* f) {
+  size_t size = 0;
+  char buf[256];
+  size_t numRead;
+  fseek(f, 0, SEEK_SET);
+  while ((numRead = fread(buf, 1, 256, f)) > 0) {
+    size += numRead;
+  }
+  fseek(f, 0, SEEK_SET);
+  return size;
+}
+
+//Read a file to a buffer
+char* readToBuf (const char* filename, size_t* bufSize) {
+  FILE* f = fopen(filename, "rb");
+  size_t size = fileSize(f);
+  char* buffer = new char[size];
+  LOGI("file (%s) size : %d", filename, size);
+  fread(buffer, 1, size, f);
+  *bufSize = size;
+  fclose(f);
+  return buffer;
+
+}
+
 int main (int argc, char** argv) {
   if (argc < 2) {
     fprintf(stderr, "usage: %s <ttf file>\n", argv[0]);
@@ -113,7 +138,12 @@ int main (int argc, char** argv) {
 
   initVideo();
   Font* font15 = FTLib::getInstance()->loadFont(argv[1], 15);
-  Font* font50 = FTLib::getInstance()->loadFont(argv[1], 50);
+
+  //Load same font but from memory and with better resolution
+  size_t bufSize;
+  char* buffer = readToBuf(argv[1], &bufSize);
+  Font* font50 = FTLib::getInstance()->loadMemoryFont(buffer, bufSize, 50);
+  delete [] buffer;
 
   if(TTF_Init() == -1) {
     printf("Error initializing SDL_TTF\n");
