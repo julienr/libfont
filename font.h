@@ -9,6 +9,10 @@ class FTLib;
 class Font {
   friend class FTLib;
   public:
+    ~Font () {
+      //Delete GL texture
+    }
+
     struct Glyph {
       float leftMargin;
       float topMargin;
@@ -23,8 +27,13 @@ class Font {
       float atlasY;
     };
 
+    //Render the given string with the given size (size is the length of a glyph quad side)
     void draw (const char* str, float size);
 
+    //Return the width/height of the rendered text at given size
+    void getExtent (const char* str, float size, float* w, float* h);
+
+    //Draw a square containing the whole texture atlas (mostly for debug purposes)
     void drawSquare (float size);
 
   private:

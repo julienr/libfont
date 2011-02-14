@@ -58,3 +58,26 @@ void Font::draw (const char* str, float size) {
   glPopMatrix();
 }
 
+void Font::getExtent (const char* str, float size, float* w, float* h) {
+  float longestLine = 0; //longest line length
+  int numLines = 1;
+
+  float currLineLength = 0;
+  for (const char* c = str; *c!='\0'; c++) {
+    if (*c == '\n') {
+      numLines++;
+      if (currLineLength > longestLine)
+        longestLine = currLineLength;
+      currLineLength = 0;
+    } else {
+      const Glyph& gi = glyphMap.get((unsigned long)*c);
+      currLineLength += glyphSize*size + gi.leftMargin*size + gi.advance*size;
+    }
+  }
+  if (currLineLength > longestLine)
+    longestLine = currLineLength;
+
+  *w = longestLine;
+  *h = numLines*glyphSize*size;
+}
+
