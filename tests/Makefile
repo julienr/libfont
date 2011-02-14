@@ -1,6 +1,2 @@
-SRC = sdltest.cpp \
-			../font.cpp \
-			../ftlib.cpp
-
 all:
-	g++ -I../ -o sdltest ${SRC} -I/usr/include/freetype2/ -lfreetype -lSDL -lSDL_ttf -lGL -g
+	g++ -I../ -o sdltest sdltest.cpp -I/usr/include/freetype2/ -lfreetype -lSDL -lSDL_ttf -lGL -g -L ../ -lfont

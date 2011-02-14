@@ -1,4 +1,6 @@
-#include "ftlib.h"
+#include "FTLib.h"
+
+namespace fontlib {
 
 static int nextPowerOf2 (int a)
 {
@@ -213,3 +215,5 @@ Font* FTLib::loadFont (const char* filename, int resolution, int glyphMargin) co
   return readFont(fontFace, resolution, glyphMargin);
 }
 
+
+}

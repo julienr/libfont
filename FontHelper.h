@@ -3,6 +3,8 @@
 
 #include "font.h"
 
+namespace fontlib {
+
 //A helper class to draw fonts
 class FontHelper {
   public:
@@ -20,5 +22,7 @@ class FontHelper {
   private:
     FontHelper() {}
 };
+
+}
 
 #endif

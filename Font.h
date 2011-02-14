@@ -4,6 +4,8 @@
 #include "def.h"
 #include "map.h"
 
+namespace fontlib {
+
 class FTLib;
 
 class Font {
@@ -46,5 +48,7 @@ class Font {
     map<unsigned long, Glyph> glyphMap;
     float glyphSize;
 };
+
+}
 
 #endif

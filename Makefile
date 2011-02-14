@@ -1,7 +1,7 @@
 CC=g++
 CPPFLAGS=-c -Wall -I. -I/usr/include/freetype2/
 LDFLAGS=
-SOURCES=font.cpp ftlib.cpp
+SOURCES=Font.cpp FTLib.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
 LIBRARY=libfont.a
 
