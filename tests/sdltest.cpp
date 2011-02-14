@@ -1,4 +1,4 @@
-#include "ftlib.h"
+#include "FTLib.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <SDL/SDL.h>
@@ -9,6 +9,8 @@
 #define SCREEN_HEIGHT 800
 
 SDL_Surface* screen;
+
+using namespace fontlib;
 
 static void initVideo () {
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0) {

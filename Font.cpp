@@ -1,4 +1,4 @@
-#include "font.h"
+#include "Font.h"
 
 extern "C" {
 #include <ft2build.h>
@@ -7,6 +7,8 @@ extern "C" {
 #include <freetype/ftoutln.h>
 #include <freetype/fttrigon.h>
 }
+
+namespace fontlib {
 
 Font::Font (const GLuint atlasTex, const map<unsigned long, Glyph>& glyphMap, float glyphSize) 
   : tex(atlasTex), glyphMap(glyphMap), glyphSize(glyphSize) {
@@ -81,3 +83,4 @@ void Font::getExtent (const char* str, float size, float* w, float* h) {
   *h = numLines*glyphSize*size;
 }
 
+}

@@ -1,7 +1,7 @@
 #ifndef _FTLIB_H
 #define _FTLIB_H
 
-#include "font.h"
+#include "Font.h"
 
 extern "C" {
 #include <ft2build.h>
@@ -10,6 +10,8 @@ extern "C" {
 #include <freetype/ftoutln.h>
 #include <freetype/fttrigon.h>
 }
+
+namespace fontlib {
 
 class FTLib {
   public:
@@ -69,5 +71,7 @@ class FTLib {
     bool error; //this flag is set to true if any error occurs during freetype initialization
     FT_Library library;
 };
+
+}
 
 #endif
