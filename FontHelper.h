@@ -1,7 +1,7 @@
 #ifndef _FONT_HELPER_H
 #define _FONT_HELPER_H
 
-#include "font.h"
+#include "Font.h"
 
 namespace fontlib {
 
