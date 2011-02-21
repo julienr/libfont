@@ -10,37 +10,69 @@ extern "C" {
 
 namespace fontlib {
 
+static MGL_DATATYPE squareVerts[8] = {
+/*    fX(-0.5), fX(-0.5), 0,
+    fX(0.5), fX(-0.5), 0,
+    fX(-0.5), fX(0.5), 0,
+    fX(0.5), fX(0.5), 0*/
+    0,0,
+    fX(1),0,
+    0,fX(1),
+    fX(1),fX(1)
+};
+
 Font::Font (const GLuint atlasTex, const map<unsigned long, Glyph>& glyphMap, float glyphSize) 
   : tex(atlasTex), glyphMap(glyphMap), glyphSize(glyphSize) {
 }
 
 void Font::drawSquare (float size) {
+  MGL_DATATYPE texCoords[8] = {
+    0,0,
+    fX(1),0,
+    0,fX(1),
+    fX(1),fX(1),
+  };
+
+  glEnableClientState(GL_VERTEX_ARRAY);
+  glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
   glBindTexture(GL_TEXTURE_2D,tex);
-  glBegin (GL_QUADS);
-    glTexCoord2f(0.0f,0.0f); glVertex2f(0.0f,0.0f);
-    glTexCoord2f(0.0f,1.0f); glVertex2f(0.0f,size);
-    glTexCoord2f(1.0f,1.0f); glVertex2f(size, size);
-    glTexCoord2f(1.0f,0.0f); glVertex2f(size,0.0f);
-  glEnd ();
+
+  glPushMatrix();
+  glScalef(size, size, 1);
+  glVertexPointer(2, MGL_TYPE, 0, squareVerts);
+  glTexCoordPointer(2, MGL_TYPE, 0, texCoords);
+  glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+  glPopMatrix();
+
+  glDisableClientState(GL_VERTEX_ARRAY);
+  glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
 void Font::drawGlyph (const Glyph& gi) {
-  //LOGI("Drawing glyph at coords (%f,%f) with glyphSize %f", gi.atlasX, gi.atlasY, glyphSize);
-
   glPushMatrix();
   glTranslatef(gi.leftMargin, gi.topMargin, 0.0f);
+ 
+  MGL_DATATYPE texCoords[8] = {
+    fX(gi.atlasX), fX(gi.atlasY),
+    fX(gi.atlasX+glyphSize), fX(gi.atlasY),
+    fX(gi.atlasX), fX(gi.atlasY+glyphSize),
+    fX(gi.atlasX+glyphSize), fX(gi.atlasY+glyphSize)
 
-  glBegin (GL_QUADS);
-    glTexCoord2f(gi.atlasX,gi.atlasY); glVertex2f(0.0f,0.0f);
-    glTexCoord2f(gi.atlasX,gi.atlasY+glyphSize); glVertex2f(0.0f,1.0f);
-    glTexCoord2f(gi.atlasX+glyphSize,gi.atlasY+glyphSize); glVertex2f(1.0f,1.0f);
-    glTexCoord2f(gi.atlasX+glyphSize,gi.atlasY); glVertex2f(1.0f,0.0f);
-  glEnd ();
+  };
+  glVertexPointer(2, MGL_TYPE, 0, squareVerts);
+  glTexCoordPointer(2, MGL_TYPE, 0, texCoords);
+  glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
   glPopMatrix();
 }
 
 void Font::draw (const char* str, float size) {
   glBindTexture(GL_TEXTURE_2D, tex);
+
+  glEnableClientState(GL_VERTEX_ARRAY);
+  glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
 
   glPushMatrix();
   glScalef(size, size, 1.0f);
@@ -57,6 +89,10 @@ void Font::draw (const char* str, float size) {
       advanceAccum += gi.advance;
     }
   }
+
+  glDisableClientState(GL_VERTEX_ARRAY);
+  glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
   glPopMatrix();
 }
 

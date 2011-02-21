@@ -1,7 +1,7 @@
 #ifndef _FONT_H
 #define _FONT_H
 
-#include "def.h"
+#include "fontdef.h"
 #include "map.h"
 
 namespace fontlib {

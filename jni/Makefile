@@ -1,5 +1,5 @@
 CC=g++
-CPPFLAGS=-c -Wall -I. -I/usr/include/freetype2/
+CPPFLAGS=-c -Wall -I. -I/usr/include/freetype2/ -DPLATFORM_SDL
 LDFLAGS=
 SOURCES=Font.cpp FTLib.cpp
 OBJECTS=$(SOURCES:.cpp=.o)

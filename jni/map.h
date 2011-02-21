@@ -1,7 +1,7 @@
 #ifndef _MAP_H
 #define	_MAP_H
 
-#include "def.h"
+#include "fontdef.h"
 #include "uthash.h"
 
 template <class K, class V>
