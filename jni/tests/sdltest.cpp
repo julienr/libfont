@@ -80,7 +80,7 @@ static void drawText (Font* font, const char* msg, int x, int y, int size) {
   glPushMatrix();
 
   glTranslatef(x, y, 0);
-  font->draw(msg, size);
+  font->draw(msg, size, true);
 
   glPopMatrix();
 }

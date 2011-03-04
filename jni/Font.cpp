@@ -67,11 +67,13 @@ void Font::drawGlyph (const Glyph& gi) {
   glPopMatrix();
 }
 
-void Font::draw (const char* str, float size) {
+void Font::draw (const char* str, float size, bool autoGLState) {
   glBindTexture(GL_TEXTURE_2D, tex);
 
-  glEnableClientState(GL_VERTEX_ARRAY);
-  glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+  if (autoGLState) {
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+  }
 
 
   glPushMatrix();
@@ -90,8 +92,10 @@ void Font::draw (const char* str, float size) {
     }
   }
 
-  glDisableClientState(GL_VERTEX_ARRAY);
-  glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+  if (autoGLState) {
+    glDisableClientState(GL_VERTEX_ARRAY);
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+  }
 
   glPopMatrix();
 }

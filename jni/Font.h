@@ -30,7 +30,8 @@ class Font {
     };
 
     //Render the given string with the given size (size is the length of a glyph quad side)
-    void draw (const char* str, float size);
+    //If autoGLState, VERTEX and TEXCOORDS array will be enabled before drawing and disable after.
+    void draw (const char* str, float size, bool autoGLState);
 
     //Return the width/height of the rendered text at given size
     void getExtent (const char* str, float size, float* w, float* h);
