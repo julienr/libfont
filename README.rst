@@ -6,7 +6,13 @@ This library aims to provide an easy way to render text on Android OpenGL ES (or
 
 Usage
 =====
-See tests/sdltest.cpp for an demo using the SDL.
+The samples/ directory contains sample code.
+It currently has sample for :
+- SDL version
+- Android : using NDK's Native Activity. Therefore, it requires a device (or the emulator) running Android 2.3. But the code can
+            be ported to work with the standard Java/JNI glue that was required for earlier android versions
+
+.. image:: http://fhtagn.net/images/libfont/android-screen.png
 
 Internals
 =========
