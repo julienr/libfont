@@ -15,7 +15,7 @@ LOCAL_SRC_FILES :=\
 	FTLib.cpp \
 	Font.cpp 
 
-LOCAL_CFLAGS := -Wall -DANDROID_NDK
+LOCAL_CFLAGS := -Wall -D__ANDROID__
 
 LIBFREETYPE_PATH := /home/julien/android/libfreetype/obj/local/armeabi/
 

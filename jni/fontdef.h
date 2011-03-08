@@ -12,7 +12,7 @@ extern "C" {
 #define STR(x) STRINGIFY(x)
 #define STRINGIFY(x) # x
 
-#ifdef ANDROID_NDK //Android build
+#ifdef __ANDROID__ //Android build
   #include <GLES/gl.h>
   #include <android/log.h>
   #if 1

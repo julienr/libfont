@@ -53,15 +53,14 @@ void Font::drawGlyph (const Glyph& gi) {
   glPushMatrix();
   glTranslatef(gi.leftMargin, gi.topMargin, 0.0f);
  
-  MGL_DATATYPE texCoords[8] = {
-    fX(gi.atlasX), fX(gi.atlasY),
-    fX(gi.atlasX+glyphSize), fX(gi.atlasY),
-    fX(gi.atlasX), fX(gi.atlasY+glyphSize),
-    fX(gi.atlasX+glyphSize), fX(gi.atlasY+glyphSize)
-
+  float texCoords[8] = {
+    gi.atlasX, gi.atlasY,
+    gi.atlasX+glyphSize, gi.atlasY,
+    gi.atlasX, gi.atlasY+glyphSize,
+    gi.atlasX+glyphSize, gi.atlasY+glyphSize
   };
   glVertexPointer(2, MGL_TYPE, 0, squareVerts);
-  glTexCoordPointer(2, MGL_TYPE, 0, texCoords);
+  glTexCoordPointer(2, GL_FLOAT, 0, texCoords);
   glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
   glPopMatrix();
@@ -74,7 +73,6 @@ void Font::draw (const char* str, float size, bool autoGLState) {
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
   }
-
 
   glPushMatrix();
   glScalef(size, size, 1.0f);

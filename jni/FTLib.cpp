@@ -75,6 +75,8 @@ FTLib::~FTLib () {
   FT_Done_FreeType(library);
 }
 
+#define GLERR do {int err=glGetError();if (err != 0) LOGE("GL Error at %s:%i : %i", __FILE__, __LINE__, err); } while(0)
+
 Font* FTLib::readFont (const FT_Face& fontFace, int resolution, int glyphMargin) {
   //Each character will be rendered in a square of resolution*resolution pixels
   FT_Set_Pixel_Sizes(fontFace, resolution, resolution);
@@ -113,7 +115,7 @@ Font* FTLib::readFont (const FT_Face& fontFace, int resolution, int glyphMargin)
   glBindTexture(GL_TEXTURE_2D, atlasTex);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
+  GLERR;
 
   LOGI("num glyphs : %i => texSize = %i (nextpowerof2 = %i), numGlyphsPerRow = %i, margin = %i", numGlyphs, texSize, realTexSize, numGlyphsPerRow, glyphMargin);
 
@@ -158,8 +160,9 @@ Font* FTLib::readFont (const FT_Face& fontFace, int resolution, int glyphMargin)
     }
   }
 
-  glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA, realTexSize, realTexSize, 0, GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, textureData);
+  glTexImage2D (GL_TEXTURE_2D, 0, GL_LUMINANCE_ALPHA, realTexSize, realTexSize, 0, GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, textureData);
   delete [] textureData;
+  GLERR;
 
   FT_Done_Face(fontFace);
 
